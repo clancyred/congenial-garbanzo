@@ -274,6 +274,51 @@ Maintain a simple, append-only event log to show in final results:
 - Persist game state locally so accidental app backgrounding doesn’t lose the game.
 - No cloud sync required.
 
+## 11) Implementation notes (recommended)
+These are non-binding recommendations to accelerate implementation and avoid common iPad pitfalls.
+
+### 11.1 Tech stack (iPad-native)
+- **UI**: SwiftUI (iPad-first, supports portrait/landscape).
+- **Architecture**: a single source-of-truth `GameState` (e.g., Observable) plus pure functions for transitions (Pass/Guessed/Undo/NextTurn).
+- **Randomness**: use system RNG to shuffle lists; implement the pass/defer rules exactly as defined in §6.
+
+### 11.2 Local persistence (offline)
+- **Persistence options**: SwiftData (iOS 17+) or Core Data; alternatively write a single JSON file to app documents directory.
+- **When to save**: on every state transition (Guessed/Pass/Undo/StartTurn/TimeUp/RoundComplete) and on app lifecycle events (background/terminate).
+- **Recovery**: on launch, offer “Resume game” if a saved in-progress game exists.
+
+### 11.3 Timer implementation
+- Use a monotonic-time based approach: store `turnEndTimestamp` and derive remaining seconds from `now`, rather than decrementing a counter each second.
+- Ensure correctness across:
+  - brief backgrounding,
+  - orientation changes,
+  - system hiccups (avoid timer drift).
+- On “Start turn”, begin countdown; on “Time’s Up”, freeze and require acknowledgement.
+
+### 11.4 Prevent screen sleep
+- Disable idle sleep during:
+  - active turns, and optionally
+  - handoff/start screens.
+- iOS API: `UIApplication.shared.isIdleTimerDisabled = true` while active; restore to `false` when leaving gameplay.
+
+### 11.5 Audio (“Time’s Up” buzzer)
+- Use AVFoundation (e.g., `AVAudioPlayer`) with a short bundled buzzer file.
+- Play for ~2 seconds; do not require a mute toggle.
+- “Confirm to stop the sound”: acknowledgement tap should stop playback immediately (even if the 2 seconds hasn’t elapsed).
+
+### 11.6 Press-and-hold reveal
+- Implement as a press-and-hold gesture that shows the word only while pressed.
+- When the touch ends/cancels, immediately hide the word.
+- Make sure it works reliably with:
+  - both orientations,
+  - large text,
+  - accidental scroll/taps (avoid revealing via simple tap).
+
+### 11.7 Accessibility & robustness
+- Support Dynamic Type (large text) for team names, timer, and the word reveal.
+- Ensure good contrast in “Time’s Up” and “Pass to Team X” screens.
+- Avoid exposing prior entries during word-entry; consider a “privacy blur” when app goes to background.
+
 ## 11) Host/admin controls
 Provide a “Host menu” (not during an active timed turn) with:
 - Restart game (back to host setup; clears all data)
