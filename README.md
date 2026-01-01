@@ -11,3 +11,6 @@ Fishbowl is similar to Moniker: players submit words/phrases into a shared “fi
 
 ## Spec
 See `FISHBOWL_SPEC.md`.
+
+## Hosting (free)
+Recommended deployment: GitHub Pages with automated deploys (see `FISHBOWL_SPEC.md` §14).

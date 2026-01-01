@@ -368,3 +368,40 @@ All destructive actions should require confirmation.
 - Final screen: per-round breakdown + total + log + ownership list.
 - During active turns, the app attempts to prevent screen sleep (wake lock where available) and otherwise provides an in-app workaround prompt.
 
+## 14) Hosting & deployment (free, automated)
+Recommended: **GitHub Pages** with automated deploys from `main` to a `gh-pages` branch via GitHub Actions.
+
+### 14.1 Workflow
+This repo includes a ready-to-use workflow:
+- `.github/workflows/deploy-gh-pages.yml`
+
+It assumes:
+- Node-based web app with `npm ci`
+- A build script at `npm run build`
+- Build output written to `./dist` (Vite default)
+
+If the implementation uses a different output folder (e.g., `build/`), update `publish_dir`.
+
+### 14.2 One-time GitHub repo settings
+In the GitHub repo:
+- Settings → Pages
+  - Source: **Deploy from a branch**
+  - Branch: **gh-pages** (root)
+
+After the first successful workflow run, GitHub will provide a Pages URL (HTTPS).
+
+### 14.3 SPA/PWA path considerations (important)
+GitHub Pages hosts under a sub-path (e.g., `/<repo>/`). The implementation must account for this:
+- Configure the app’s **base path** appropriately (framework-specific; e.g., Vite `base: '/<repo>/'`).
+- Ensure `manifest.webmanifest` uses correct paths.
+- Ensure service worker caching is compatible with the base path.
+- For client-side routing, either:
+  - avoid path-based routing (use a single screen with internal state), or
+  - implement a Pages-compatible fallback (commonly duplicating `index.html` as `404.html`).
+
+### 14.4 Installation on iPad
+Once deployed:
+- Open the Pages URL in iPad Safari.
+- Share → **Add to Home Screen**.
+- Launch from Home Screen for the PWA-like experience.
+
