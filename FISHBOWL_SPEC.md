@@ -1,4 +1,4 @@
-# Fishbowl (iPad) — Product & Functional Specification
+# Fishbowl (iPad PWA) — Product & Functional Specification
 Last updated: 2026-01-01
 
 ## 1) Overview
@@ -10,12 +10,30 @@ Fishbowl is a pass-and-play party game for a **single iPad**, played by **two te
 
 Each correctly guessed item is **1 point**. Scores are cumulative across rounds and shown at the end (ties allowed).
 
-## 2) Platform & constraints
+## 2) Platform & constraints (Web app + PWA)
 - **Device**: iPad (single device, passed between teams/players).
-- **Connectivity**: fully **offline** (no accounts, no network dependency).
+- **Delivery**: web app that can be installed as a **PWA** (“Add to Home Screen”).
+- **Connectivity**:
+  - The app must work **offline after first successful load** (PWA cached assets + local data).
+  - No accounts; no server required for gameplay.
 - **Orientation**: supports **portrait and landscape**.
-- **Screen sleep**: prevent iPad from sleeping during active turns.
-- **Audio**: “time’s up” plays a **buzzer sound for ~2 seconds**, and a full-screen **Time’s Up** message appears until acknowledged.
+- **Screen sleep**:
+  - The app must **attempt to keep the screen awake** during active turns (see §11.4).
+  - If the platform doesn’t allow it, the app must show a clear in-app prompt/workaround.
+- **Audio**:
+  - “time’s up” plays a **buzzer sound for ~2 seconds**,
+  - and a full-screen **Time’s Up** message appears until acknowledged.
+  - Audio must be implemented in a way that works with common iPad browser gesture restrictions (see §11.5).
+
+## 2.1) PWA installation (iPad)
+The app should be installable to the iPad Home Screen via Safari:
+- Open the app URL in Safari.
+- Tap **Share** → **Add to Home Screen**.
+- Launch from the Home Screen icon for a more app-like experience.
+
+Notes:
+- PWA/service worker features require the app to be served over **HTTPS** (not `file://`).
+- Offline use requires at least one successful load while online (to populate the cache).
 
 ## 3) Glossary
 - **Fishbowl item**: a submitted word/phrase (string) with an owner (player name) and originating team.
@@ -274,37 +292,46 @@ Maintain a simple, append-only event log to show in final results:
 - Persist game state locally so accidental app backgrounding doesn’t lose the game.
 - No cloud sync required.
 
-## 11) Implementation notes (recommended)
+## 11) Implementation notes (recommended, Web/PWA)
 These are non-binding recommendations to accelerate implementation and avoid common iPad pitfalls.
 
-### 11.1 Tech stack (iPad-native)
-- **UI**: SwiftUI (iPad-first, supports portrait/landscape).
-- **Architecture**: a single source-of-truth `GameState` (e.g., Observable) plus pure functions for transitions (Pass/Guessed/Undo/NextTurn).
-- **Randomness**: use system RNG to shuffle lists; implement the pass/defer rules exactly as defined in §6.
+### 11.1 Tech stack (Web/PWA)
+- **App type**: static single-page app (SPA) with an offline-capable service worker.
+- **Suggested stack**: TypeScript + React (or similar) + Vite, but the spec is stack-agnostic.
+- **Architecture**: a single source-of-truth `GameState` plus pure reducer-style transitions (Pass/Guessed/Undo/NextTurn).
+- **Randomness**: use a standard shuffle (e.g., Fisher–Yates) and implement pass/defer rules exactly as defined in §6.
 
 ### 11.2 Local persistence (offline)
-- **Persistence options**: SwiftData (iOS 17+) or Core Data; alternatively write a single JSON file to app documents directory.
-- **When to save**: on every state transition (Guessed/Pass/Undo/StartTurn/TimeUp/RoundComplete) and on app lifecycle events (background/terminate).
-- **Recovery**: on launch, offer “Resume game” if a saved in-progress game exists.
+- **Persistence options**:
+  - Prefer **IndexedDB** for `GameState` + event log (robust for larger payloads).
+  - `localStorage` is acceptable for small settings (team names, timer defaults), but not ideal for the whole game state.
+- **When to save**: on every state transition (Guessed/Pass/Undo/StartTurn/TimeUp/RoundComplete) and on page lifecycle events.
+- **Recovery**: on load, offer “Resume game” if an in-progress game exists.
+- **Export (optional, nice-to-have)**: a “Export game” JSON button for backup/debugging.
 
 ### 11.3 Timer implementation
-- Use a monotonic-time based approach: store `turnEndTimestamp` and derive remaining seconds from `now`, rather than decrementing a counter each second.
+- Use a monotonic-time based approach: store `turnEndTimestamp` and derive remaining seconds from `performance.now()` / a monotonic clock, rather than decrementing a counter each second.
 - Ensure correctness across:
-  - brief backgrounding,
+  - brief backgrounding / app switching,
   - orientation changes,
   - system hiccups (avoid timer drift).
 - On “Start turn”, begin countdown; on “Time’s Up”, freeze and require acknowledgement.
+- Handle `visibilitychange` (e.g., if the page is backgrounded during a turn): pause UI updates and re-derive time on resume.
 
 ### 11.4 Prevent screen sleep
-- Disable idle sleep during:
-  - active turns, and optionally
-  - handoff/start screens.
-- iOS API: `UIApplication.shared.isIdleTimerDisabled = true` while active; restore to `false` when leaving gameplay.
+- Attempt to keep the screen awake during active turns:
+  - Use the **Screen Wake Lock API** (`navigator.wakeLock.request('screen')`) when available.
+  - Re-request wake lock after `visibilitychange` when returning to the app.
+- If wake lock isn’t available (common on some iPadOS/Safari versions), show an in-app prompt such as:
+  - “To prevent the screen from dimming: temporarily set iPad **Auto-Lock** to **Never** for the game, or use **Guided Access**.”
+  - (The app should not require iOS version knowledge; it should detect capability at runtime.)
 
 ### 11.5 Audio (“Time’s Up” buzzer)
-- Use AVFoundation (e.g., `AVAudioPlayer`) with a short bundled buzzer file.
+- Implement buzzer audio in a way compatible with iOS gesture restrictions:
+  - Initialize/unlock audio on a user gesture (e.g., the first “Start turn” tap) so later playback is reliable.
+  - Use Web Audio API and/or an `<audio>` element with a bundled sound asset.
 - Play for ~2 seconds; do not require a mute toggle.
-- “Confirm to stop the sound”: acknowledgement tap should stop playback immediately (even if the 2 seconds hasn’t elapsed).
+- Acknowledgement tap should stop playback immediately (even if the 2 seconds hasn’t elapsed).
 
 ### 11.6 Press-and-hold reveal
 - Implement as a press-and-hold gesture that shows the word only while pressed.
@@ -319,7 +346,7 @@ These are non-binding recommendations to accelerate implementation and avoid com
 - Ensure good contrast in “Time’s Up” and “Pass to Team X” screens.
 - Avoid exposing prior entries during word-entry; consider a “privacy blur” when app goes to background.
 
-## 11) Host/admin controls
+## 12) Host/admin controls
 Provide a “Host menu” (not during an active timed turn) with:
 - Restart game (back to host setup; clears all data)
 - Restart current round (keeps the same fishbowl items; resets the round’s remaining pools to “all items unguessed”, resets timer defaults; scores for other rounds remain, but the restarted round’s score is reset)
@@ -328,7 +355,7 @@ Provide a “Host menu” (not during an active timed turn) with:
 
 All destructive actions should require confirmation.
 
-## 12) Acceptance criteria (must-haves)
+## 13) Acceptance criteria (must-haves)
 - Players can enter exactly 3 items each; duplicates blocked via normalization.
 - Next player cannot see previous entries; a pass-to-next-player screen exists.
 - 2-team gameplay with alternating turns; first-entry team starts Round 1.
@@ -339,4 +366,5 @@ All destructive actions should require confirmation.
 - Undo reverts last guess/pass including score and pool state.
 - After each round: show item list and running score.
 - Final screen: per-round breakdown + total + log + ownership list.
+- During active turns, the app attempts to prevent screen sleep (wake lock where available) and otherwise provides an in-app workaround prompt.
 

@@ -1,6 +1,6 @@
-# Fishbowl (iPad)
+# Fishbowl (iPad PWA)
 
-This repo currently contains the product/functional spec for **Fishbowl**, a pass-and-play party game for a single iPad (offline).
+This repo currently contains the product/functional spec for **Fishbowl**, an offline-capable, pass-and-play party game designed to run as a **web app + installable PWA** on a single iPad.
 
 ## Table of Contents
 - About
