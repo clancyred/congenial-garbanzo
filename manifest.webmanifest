@@ -1,0 +1,1 @@
+{"name":"Fishbowl","short_name":"Fishbowl","description":"Fishbowl party game (pass-and-play).","start_url":".","display":"standalone","background_color":"#0b1220","theme_color":"#0ea5e9","lang":"en","scope":".","icons":[{"src":"icons/fishbowl.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
