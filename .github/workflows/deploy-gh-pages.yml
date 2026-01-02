@@ -25,19 +25,21 @@ jobs:
         with:
           node-version: "lts/*"
           cache: npm
+          cache-dependency-path: web/package-lock.json
 
       - name: Install dependencies
+        working-directory: web
         run: npm ci
 
       - name: Build
+        working-directory: web
         run: npm run build
 
-      # Assumes your build output is in ./dist (e.g., Vite default).
-      # If your framework uses a different folder, update publish_dir.
+      # Assumes your build output is in web/dist (Vite default).
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: ./dist
+          publish_dir: ./web/dist
           force_orphan: true
