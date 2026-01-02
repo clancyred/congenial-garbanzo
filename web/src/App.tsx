@@ -8,6 +8,18 @@ import { clearSavedGame, isInProgressGame, loadSavedGame, saveGame } from './gam
 import { useScreenWakeLock } from './game/wakeLock'
 import { roundName } from './game/util'
 
+const QUICK_PLAYER_NAMES = [
+  'Dad',
+  'Mom',
+  'Scarlett',
+  'Drake',
+  'Bridget',
+  'Luke',
+  'Jack',
+  'Audrey',
+  'Ryan',
+] as const
+
 function totalScore(s: GameState['scoresByRound'], team: TeamId) {
   return s[1][team] + s[2][team] + s[3][team]
 }
@@ -715,6 +727,21 @@ function WordEntryScreen({
           <label className="field">
             <div className="label">Player name</div>
             <input value={playerName} onChange={(e) => setPlayerName(e.target.value)} placeholder="Name" />
+            <div className="fieldNote" style={{ marginTop: 10 }}>
+              <div className="label" style={{ marginBottom: 8 }}>
+                Quick pick
+              </div>
+              <div className="chips">
+                {QUICK_PLAYER_NAMES.map((n) => (
+                  <button key={n} type="button" className="chip" onClick={() => setPlayerName(n)}>
+                    {n}
+                  </button>
+                ))}
+                <button type="button" className="chip subtle" onClick={() => setPlayerName('')}>
+                  Clear
+                </button>
+              </div>
+            </div>
           </label>
           <div className="field">
             <div className="label">Team</div>

@@ -249,6 +249,31 @@
   background: rgba(14, 165, 233, 0.35);
 }
 
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.14);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.chip:active {
+  transform: translateY(1px);
+  filter: brightness(1.15);
+}
+.chip.subtle {
+  opacity: 0.9;
+  border-style: dashed;
+}
+
 .timer {
   font-size: clamp(22px, 3vw, 34px);
   font-weight: 900;
