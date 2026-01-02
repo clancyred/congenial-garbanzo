@@ -724,6 +724,7 @@ function TurnActiveScreen({
   wake: ReturnType<typeof useScreenWakeLock>
 }) {
   const [revealed, setRevealed] = useState(false)
+  const [pressed, setPressed] = useState<'guess' | 'pass' | 'undo' | null>(null)
   const currentWord = useMemo(() => {
     const id = state.pools?.currentItemId
     if (!id) return null
@@ -770,13 +771,36 @@ function TurnActiveScreen({
         </div>
 
         <div className="row" style={{ marginTop: 14 }}>
-          <button className="btn primary" onClick={() => dispatch({ type: 'TURN_GUESSED' })} disabled={!currentWord}>
+          <button
+            className={`btn primary ${pressed === 'guess' ? 'pressed' : ''}`}
+            onPointerDown={() => setPressed('guess')}
+            onPointerUp={() => setPressed(null)}
+            onPointerCancel={() => setPressed(null)}
+            onPointerLeave={() => setPressed(null)}
+            onClick={() => dispatch({ type: 'TURN_GUESSED' })}
+            disabled={!currentWord}
+          >
             Guessed
           </button>
-          <button className="btn" onClick={() => dispatch({ type: 'TURN_PASSED' })} disabled={!currentWord}>
+          <button
+            className={`btn ${pressed === 'pass' ? 'pressed' : ''}`}
+            onPointerDown={() => setPressed('pass')}
+            onPointerUp={() => setPressed(null)}
+            onPointerCancel={() => setPressed(null)}
+            onPointerLeave={() => setPressed(null)}
+            onClick={() => dispatch({ type: 'TURN_PASSED' })}
+            disabled={!currentWord}
+          >
             Pass
           </button>
-          <button className="btn" onClick={() => dispatch({ type: 'TURN_UNDO' })}>
+          <button
+            className={`btn ${pressed === 'undo' ? 'pressed' : ''}`}
+            onPointerDown={() => setPressed('undo')}
+            onPointerUp={() => setPressed(null)}
+            onPointerCancel={() => setPressed(null)}
+            onPointerLeave={() => setPressed(null)}
+            onClick={() => dispatch({ type: 'TURN_UNDO' })}
+          >
             Undo
           </button>
         </div>
