@@ -978,7 +978,7 @@ function TurnActiveScreen({
         <div className="row" style={{ marginTop: 14 }}>
           <div className="guessWrap">
             <button
-              className={`btn primary ${pressed === 'guess' ? 'pressed' : ''}`}
+              className={`btn turnBtn ${pressed === 'guess' ? 'pressed' : ''}`}
               onTouchStart={pressStart('guess')}
               onTouchEnd={pressEnd}
               onTouchCancel={pressEnd}
@@ -1006,7 +1006,7 @@ function TurnActiveScreen({
             ) : null}
           </div>
           <button
-            className={`btn ${pressed === 'pass' ? 'pressed' : ''}`}
+            className={`btn turnBtn ${pressed === 'pass' ? 'pressed' : ''}`}
             onTouchStart={pressStart('pass')}
             onTouchEnd={pressEnd}
             onTouchCancel={pressEnd}
@@ -1026,7 +1026,7 @@ function TurnActiveScreen({
             Pass
           </button>
           <button
-            className={`btn ${pressed === 'undo' ? 'pressed' : ''}`}
+            className={`btn turnBtn ${pressed === 'undo' ? 'pressed' : ''}`}
             onTouchStart={pressStart('undo')}
             onTouchEnd={pressEnd}
             onTouchCancel={pressEnd}
