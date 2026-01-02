@@ -3,8 +3,8 @@ function randomInt(maxExclusive: number): number {
   const c = globalThis.crypto as Crypto | undefined
   if (c?.getRandomValues) {
     // Rejection sampling to avoid modulo bias
-    const uint32Max = 0xffffffff
-    const limit = uint32Max - (uint32Max % maxExclusive)
+    const range = 0x1_0000_0000 // 2^32
+    const limit = range - (range % maxExclusive)
     const buf = new Uint32Array(1)
     while (true) {
       c.getRandomValues(buf)
