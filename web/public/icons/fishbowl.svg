@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Fishbowl icon">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="48" fill="#0b1220"/>
+  <!-- bowl -->
+  <path d="M64 92c0-18 28-32 64-32s64 14 64 32c0 6-3 12-8 17-8 8-24 15-56 19v8c0 8 5 16 12 22 9 7 20 12 36 16-10 16-27 26-48 26s-38-10-48-26c16-4 27-9 36-16 7-6 12-14 12-22v-8c-32-4-48-11-56-19-5-5-8-11-8-17z"
+        fill="url(#g)" opacity="0.95"/>
+  <!-- water line -->
+  <path d="M84 116c14 10 34 14 44 14s30-4 44-14c-8 10-26 18-44 18s-36-8-44-18z"
+        fill="#e0f2fe" opacity="0.9"/>
+  <!-- fish -->
+  <path d="M118 148c10-10 28-10 38 0 6 6 10 8 14 8-2 8-8 14-16 16-12 4-26 0-36-10l-10 8v-8l-8 2 8-6v-10l8 2z"
+        fill="#fbbf24"/>
+  <circle cx="146" cy="148" r="3" fill="#0b1220"/>
+</svg>
