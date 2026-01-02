@@ -274,6 +274,28 @@
   border-style: dashed;
 }
 
+.stepper {
+  display: grid;
+  grid-template-columns: 52px 1fr 52px;
+  gap: 10px;
+  align-items: center;
+}
+.stepperBtn {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.14);
+  color: var(--text);
+  border-radius: 14px;
+  height: 44px;
+  font-weight: 900;
+  font-size: 24px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.stepperBtn:active {
+  transform: translateY(2px) scale(0.98);
+  filter: brightness(1.2);
+}
+
 .timer {
   font-size: clamp(22px, 3vw, 34px);
   font-weight: 900;

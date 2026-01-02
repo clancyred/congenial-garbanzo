@@ -309,11 +309,30 @@ function App() {
           <div className="grid2" style={{ marginTop: 12 }}>
             <label className="field">
               <div className="label">Players (N)</div>
-              <input
-                inputMode="numeric"
-                value={state.playerCount}
-                onChange={(e) => dispatch({ type: 'HOST_SET_PLAYER_COUNT', playerCount: Number(e.target.value) })}
-              />
+              <div className="stepper">
+                <button
+                  type="button"
+                  className="stepperBtn"
+                  onClick={() => dispatch({ type: 'HOST_SET_PLAYER_COUNT', playerCount: state.playerCount - 1 })}
+                  aria-label="Decrease players"
+                >
+                  −
+                </button>
+                <input
+                  inputMode="numeric"
+                  value={state.playerCount}
+                  onChange={(e) => dispatch({ type: 'HOST_SET_PLAYER_COUNT', playerCount: Number(e.target.value) })}
+                  aria-label="Number of players"
+                />
+                <button
+                  type="button"
+                  className="stepperBtn"
+                  onClick={() => dispatch({ type: 'HOST_SET_PLAYER_COUNT', playerCount: state.playerCount + 1 })}
+                  aria-label="Increase players"
+                >
+                  +
+                </button>
+              </div>
               <div className="hint">Each player enters exactly 3 items. Total = {state.playerCount * 3}.</div>
             </label>
             <div className="cardSub">

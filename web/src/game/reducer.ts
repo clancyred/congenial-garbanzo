@@ -52,7 +52,7 @@ export function createNewGameState(): GameState {
       A: { id: 'A', name: 'Blue' },
       B: { id: 'B', name: 'Red' },
     },
-    playerCount: 6,
+    playerCount: 8,
     timerSettings: { round1Seconds: 30, round2Seconds: 45, round3Seconds: 45 },
     entryIndex: 0,
     startingTeamRound1: null,
