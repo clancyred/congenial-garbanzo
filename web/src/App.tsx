@@ -896,6 +896,7 @@ function TurnActiveScreen({
   const [revealed, setRevealed] = useState(false)
   const [pressed, setPressed] = useState<'guess' | 'pass' | 'undo' | null>(null)
   const pressedTimeoutRef = useRef<number | null>(null)
+  const [guessPopId, setGuessPopId] = useState(0)
   const currentWord = useMemo(() => {
     const id = state.pools?.currentItemId
     if (!id) return null
@@ -975,26 +976,35 @@ function TurnActiveScreen({
         </div>
 
         <div className="row" style={{ marginTop: 14 }}>
-          <button
-            className={`btn primary ${pressed === 'guess' ? 'pressed' : ''}`}
-            onTouchStart={pressStart('guess')}
-            onTouchEnd={pressEnd}
-            onTouchCancel={pressEnd}
-            onMouseDown={pressStart('guess')}
-            onMouseUp={pressEnd}
-            onMouseLeave={pressEnd}
-            onPointerDown={pressStart('guess')}
-            onPointerUp={pressEnd}
-            onPointerCancel={pressEnd}
-            onPointerLeave={pressEnd}
-            onClick={() => {
-              flashPress('guess')
-              dispatch({ type: 'TURN_GUESSED' })
-            }}
-            disabled={!currentWord}
-          >
-            Guessed
-          </button>
+          <div className="guessWrap">
+            <button
+              className={`btn primary ${pressed === 'guess' ? 'pressed' : ''}`}
+              onTouchStart={pressStart('guess')}
+              onTouchEnd={pressEnd}
+              onTouchCancel={pressEnd}
+              onMouseDown={pressStart('guess')}
+              onMouseUp={pressEnd}
+              onMouseLeave={pressEnd}
+              onPointerDown={pressStart('guess')}
+              onPointerUp={pressEnd}
+              onPointerCancel={pressEnd}
+              onPointerLeave={pressEnd}
+              onClick={() => {
+                flashPress('guess')
+                // Trigger a "+1" pop that floats up.
+                setGuessPopId((x) => x + 1)
+                dispatch({ type: 'TURN_GUESSED' })
+              }}
+              disabled={!currentWord}
+            >
+              Guessed
+            </button>
+            {guessPopId > 0 ? (
+              <div key={guessPopId} className="plusOne" aria-hidden="true">
+                +1
+              </div>
+            ) : null}
+          </div>
           <button
             className={`btn ${pressed === 'pass' ? 'pressed' : ''}`}
             onTouchStart={pressStart('pass')}
