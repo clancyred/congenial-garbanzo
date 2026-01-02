@@ -799,6 +799,7 @@ function TurnActiveScreen({
 }) {
   const [revealed, setRevealed] = useState(false)
   const [pressed, setPressed] = useState<'guess' | 'pass' | 'undo' | null>(null)
+  const pressedTimeoutRef = useRef<number | null>(null)
   const currentWord = useMemo(() => {
     const id = state.pools?.currentItemId
     if (!id) return null
@@ -807,6 +808,29 @@ function TurnActiveScreen({
 
   const round = state.currentRound as RoundNumber
   const remaining = state.timerSecondsRemaining ?? 0
+
+  const clearPressedTimer = () => {
+    if (pressedTimeoutRef.current != null) {
+      window.clearTimeout(pressedTimeoutRef.current)
+      pressedTimeoutRef.current = null
+    }
+  }
+
+  const pressStart = (k: 'guess' | 'pass' | 'undo') => () => {
+    clearPressedTimer()
+    setPressed(k)
+  }
+
+  const pressEnd = () => {
+    // keep pressed state unless click handler sets a flash
+    setPressed(null)
+  }
+
+  const flashPress = (k: 'guess' | 'pass' | 'undo') => {
+    clearPressedTimer()
+    setPressed(k)
+    pressedTimeoutRef.current = window.setTimeout(() => setPressed(null), 180)
+  }
 
   return (
     <div className="screenBody">
@@ -847,33 +871,60 @@ function TurnActiveScreen({
         <div className="row" style={{ marginTop: 14 }}>
           <button
             className={`btn primary ${pressed === 'guess' ? 'pressed' : ''}`}
-            onPointerDown={() => setPressed('guess')}
-            onPointerUp={() => setPressed(null)}
-            onPointerCancel={() => setPressed(null)}
-            onPointerLeave={() => setPressed(null)}
-            onClick={() => dispatch({ type: 'TURN_GUESSED' })}
+            onTouchStart={pressStart('guess')}
+            onTouchEnd={pressEnd}
+            onTouchCancel={pressEnd}
+            onMouseDown={pressStart('guess')}
+            onMouseUp={pressEnd}
+            onMouseLeave={pressEnd}
+            onPointerDown={pressStart('guess')}
+            onPointerUp={pressEnd}
+            onPointerCancel={pressEnd}
+            onPointerLeave={pressEnd}
+            onClick={() => {
+              flashPress('guess')
+              dispatch({ type: 'TURN_GUESSED' })
+            }}
             disabled={!currentWord}
           >
             Guessed
           </button>
           <button
             className={`btn ${pressed === 'pass' ? 'pressed' : ''}`}
-            onPointerDown={() => setPressed('pass')}
-            onPointerUp={() => setPressed(null)}
-            onPointerCancel={() => setPressed(null)}
-            onPointerLeave={() => setPressed(null)}
-            onClick={() => dispatch({ type: 'TURN_PASSED' })}
+            onTouchStart={pressStart('pass')}
+            onTouchEnd={pressEnd}
+            onTouchCancel={pressEnd}
+            onMouseDown={pressStart('pass')}
+            onMouseUp={pressEnd}
+            onMouseLeave={pressEnd}
+            onPointerDown={pressStart('pass')}
+            onPointerUp={pressEnd}
+            onPointerCancel={pressEnd}
+            onPointerLeave={pressEnd}
+            onClick={() => {
+              flashPress('pass')
+              dispatch({ type: 'TURN_PASSED' })
+            }}
             disabled={!currentWord}
           >
             Pass
           </button>
           <button
             className={`btn ${pressed === 'undo' ? 'pressed' : ''}`}
-            onPointerDown={() => setPressed('undo')}
-            onPointerUp={() => setPressed(null)}
-            onPointerCancel={() => setPressed(null)}
-            onPointerLeave={() => setPressed(null)}
-            onClick={() => dispatch({ type: 'TURN_UNDO' })}
+            onTouchStart={pressStart('undo')}
+            onTouchEnd={pressEnd}
+            onTouchCancel={pressEnd}
+            onMouseDown={pressStart('undo')}
+            onMouseUp={pressEnd}
+            onMouseLeave={pressEnd}
+            onPointerDown={pressStart('undo')}
+            onPointerUp={pressEnd}
+            onPointerCancel={pressEnd}
+            onPointerLeave={pressEnd}
+            onClick={() => {
+              flashPress('undo')
+              dispatch({ type: 'TURN_UNDO' })
+            }}
           >
             Undo
           </button>
