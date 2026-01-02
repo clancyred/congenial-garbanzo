@@ -20,6 +20,56 @@ const QUICK_PLAYER_NAMES = [
   'Ryan',
 ] as const
 
+const OBJECT_PICTURE_PLAYERS = new Set<string>(['Ryan', 'Audrey'])
+
+// Curated "everyday objects" -> emoji picture (offline friendly).
+// Keyed by Fishbowl normalizedText (lowercase, punctuation removed, spaces collapsed).
+const OBJECT_EMOJI_BY_NORMALIZED: Record<string, string> = {
+  // kitchen / home
+  spoon: '🥄',
+  fork: '🍴',
+  knife: '🔪',
+  plate: '🍽️',
+  cup: '🥤',
+  mug: '☕',
+  bottle: '🍼',
+  'water bottle': '🧴',
+  'paper towel': '🧻',
+  'trash can': '🗑️',
+  'soap': '🧼',
+  'toothbrush': '🪥',
+  towel: '🧺',
+  // keys / tech
+  keys: '🔑',
+  key: '🔑',
+  phone: '📱',
+  'cell phone': '📱',
+  'remote': '📺',
+  'tv remote': '📺',
+  computer: '💻',
+  laptop: '💻',
+  charger: '🔌',
+  headphones: '🎧',
+  // daily carry
+  wallet: '👛',
+  purse: '👜',
+  backpack: '🎒',
+  umbrella: '☂️',
+  // misc
+  book: '📘',
+  pen: '🖊️',
+  pencil: '✏️',
+  scissors: '✂️',
+  chair: '🪑',
+  couch: '🛋️',
+  bed: '🛏️',
+  mirror: '🪞',
+  clock: '⏰',
+  lamp: '💡',
+  camera: '📷',
+  sunglasses: '🕶️',
+}
+
 function totalScore(s: GameState['scoresByRound'], team: TeamId) {
   return s[1][team] + s[2][team] + s[3][team]
 }
@@ -852,6 +902,13 @@ function TurnActiveScreen({
     return state.items.find((x) => x.id === id) ?? null
   }, [state.items, state.pools?.currentItemId])
 
+  const objectEmoji = useMemo(() => {
+    if (!currentWord) return null
+    const ownerName = state.players.find((p) => p.id === currentWord.ownerPlayerId)?.name ?? ''
+    if (!OBJECT_PICTURE_PLAYERS.has(ownerName)) return null
+    return OBJECT_EMOJI_BY_NORMALIZED[currentWord.normalizedText] ?? null
+  }, [currentWord, state.players])
+
   const round = state.currentRound as RoundNumber
   const remaining = state.timerSecondsRemaining ?? 0
 
@@ -905,7 +962,10 @@ function TurnActiveScreen({
           onPointerLeave={() => setRevealed(false)}
         >
           {revealed ? (
-            <div className="wordText">{currentWord?.text ?? '—'}</div>
+            <div className="wordRow">
+              {objectEmoji ? <div className="wordEmoji" aria-hidden="true">{objectEmoji}</div> : null}
+              <div className="wordText">{currentWord?.text ?? '—'}</div>
+            </div>
           ) : (
             <div className="wordHidden">
               <div className="wordHiddenMain">Press and hold to reveal</div>
