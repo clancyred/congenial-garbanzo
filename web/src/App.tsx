@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import './App.css'
 import { playBuzzer, stopBuzzer, unlockAudio } from './game/audio'
+import { normalizeFishbowlText } from './game/normalize'
 import { createNewGameState, gameReducer } from './game/reducer'
 import type { GameState, RoundNumber, TeamId } from './game/types'
 import { clearSavedGame, isInProgressGame, loadSavedGame, saveGame } from './game/storage'
@@ -642,6 +643,58 @@ function WordEntryScreen({
   const [w1, setW1] = useState('')
   const [w2, setW2] = useState('')
   const [w3, setW3] = useState('')
+  const [triedSubmit, setTriedSubmit] = useState(false)
+
+  const existingNormalizedToText = useMemo(() => {
+    const m = new Map<string, string>()
+    for (const it of state.items) m.set(it.normalizedText, it.text)
+    return m
+  }, [state.items])
+
+  const entryValidation = useMemo(() => {
+    const raw = [w1, w2, w3] as const
+    const errors: Array<string | null> = [null, null, null]
+    const normalized: Array<string | null> = [null, null, null]
+
+    for (let i = 0; i < raw.length; i++) {
+      const input = raw[i]!.trim()
+      if (!input) {
+        errors[i] = triedSubmit ? 'Required.' : null
+        continue
+      }
+      const n = normalizeFishbowlText(raw[i]!)
+      if (!n.isValid) {
+        errors[i] = n.error
+        continue
+      }
+      normalized[i] = n.normalizedText
+
+      const existingText = existingNormalizedToText.get(n.normalizedText)
+      if (existingText) {
+        errors[i] = `Duplicate: already entered (“${existingText}”).`
+      }
+    }
+
+    // Detect duplicates within this player's 3 (only after basic normalization is available)
+    const firstIndexByNorm = new Map<string, number>()
+    for (let i = 0; i < normalized.length; i++) {
+      const norm = normalized[i]
+      if (!norm) continue
+      const first = firstIndexByNorm.get(norm)
+      if (typeof first === 'number') {
+        errors[i] = `Duplicate: matches Item ${first + 1}.`
+      } else {
+        firstIndexByNorm.set(norm, i)
+      }
+    }
+
+    const canSubmit =
+      playerName.trim().length > 0 &&
+      errors.every((e) => e === null) &&
+      raw.every((v) => v.trim().length > 0)
+
+    return { errors: errors as [string | null, string | null, string | null], canSubmit }
+  }, [existingNormalizedToText, playerName, triedSubmit, w1, w2, w3])
 
   return (
     <div className="screenBody">
@@ -681,15 +734,33 @@ function WordEntryScreen({
           <div className="grid1" style={{ marginTop: 10 }}>
             <label className="field">
               <div className="label">Item 1</div>
-              <input value={w1} onChange={(e) => setW1(e.target.value)} placeholder="e.g., Spider-Man" />
+              <input
+                className={entryValidation.errors[0] ? 'inputError' : ''}
+                value={w1}
+                onChange={(e) => setW1(e.target.value)}
+                placeholder="e.g., Spider-Man"
+              />
+              {entryValidation.errors[0] ? <div className="fieldNote error">{entryValidation.errors[0]}</div> : null}
             </label>
             <label className="field">
               <div className="label">Item 2</div>
-              <input value={w2} onChange={(e) => setW2(e.target.value)} placeholder="e.g., New York City" />
+              <input
+                className={entryValidation.errors[1] ? 'inputError' : ''}
+                value={w2}
+                onChange={(e) => setW2(e.target.value)}
+                placeholder="e.g., New York City"
+              />
+              {entryValidation.errors[1] ? <div className="fieldNote error">{entryValidation.errors[1]}</div> : null}
             </label>
             <label className="field">
               <div className="label">Item 3</div>
-              <input value={w3} onChange={(e) => setW3(e.target.value)} placeholder="e.g., Coffee" />
+              <input
+                className={entryValidation.errors[2] ? 'inputError' : ''}
+                value={w3}
+                onChange={(e) => setW3(e.target.value)}
+                placeholder="e.g., Coffee"
+              />
+              {entryValidation.errors[2] ? <div className="fieldNote error">{entryValidation.errors[2]}</div> : null}
             </label>
           </div>
         </div>
@@ -697,14 +768,17 @@ function WordEntryScreen({
         <div className="row" style={{ marginTop: 16 }}>
           <button
             className="btn primary"
-            onClick={() =>
+            disabled={!entryValidation.canSubmit}
+            onClick={() => {
+              setTriedSubmit(true)
+              if (!entryValidation.canSubmit) return
               dispatch({
                 type: 'ENTRY_SUBMIT_PLAYER',
                 playerName,
                 teamId,
                 items: [w1, w2, w3],
               })
-            }
+            }}
           >
             Done
           </button>
@@ -724,6 +798,7 @@ function TurnActiveScreen({
   wake: ReturnType<typeof useScreenWakeLock>
 }) {
   const [revealed, setRevealed] = useState(false)
+  const [pressed, setPressed] = useState<'guess' | 'pass' | 'undo' | null>(null)
   const currentWord = useMemo(() => {
     const id = state.pools?.currentItemId
     if (!id) return null
@@ -770,13 +845,36 @@ function TurnActiveScreen({
         </div>
 
         <div className="row" style={{ marginTop: 14 }}>
-          <button className="btn primary" onClick={() => dispatch({ type: 'TURN_GUESSED' })} disabled={!currentWord}>
+          <button
+            className={`btn primary ${pressed === 'guess' ? 'pressed' : ''}`}
+            onPointerDown={() => setPressed('guess')}
+            onPointerUp={() => setPressed(null)}
+            onPointerCancel={() => setPressed(null)}
+            onPointerLeave={() => setPressed(null)}
+            onClick={() => dispatch({ type: 'TURN_GUESSED' })}
+            disabled={!currentWord}
+          >
             Guessed
           </button>
-          <button className="btn" onClick={() => dispatch({ type: 'TURN_PASSED' })} disabled={!currentWord}>
+          <button
+            className={`btn ${pressed === 'pass' ? 'pressed' : ''}`}
+            onPointerDown={() => setPressed('pass')}
+            onPointerUp={() => setPressed(null)}
+            onPointerCancel={() => setPressed(null)}
+            onPointerLeave={() => setPressed(null)}
+            onClick={() => dispatch({ type: 'TURN_PASSED' })}
+            disabled={!currentWord}
+          >
             Pass
           </button>
-          <button className="btn" onClick={() => dispatch({ type: 'TURN_UNDO' })}>
+          <button
+            className={`btn ${pressed === 'undo' ? 'pressed' : ''}`}
+            onPointerDown={() => setPressed('undo')}
+            onPointerUp={() => setPressed(null)}
+            onPointerCancel={() => setPressed(null)}
+            onPointerLeave={() => setPressed(null)}
+            onClick={() => dispatch({ type: 'TURN_UNDO' })}
+          >
             Undo
           </button>
         </div>

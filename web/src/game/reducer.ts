@@ -287,17 +287,33 @@ export function gameReducer(state: GameState, action: Action): GameState {
       if (!playerName) return { ...state, lastError: 'Please enter a player name.' }
       if (state.entryIndex >= state.playerCount) return state
 
-      const normalizedExisting = new Set(state.items.map((it) => it.normalizedText))
+      const normalizedToExistingText = new Map<string, string>()
+      for (const it of state.items) normalizedToExistingText.set(it.normalizedText, it.text)
+
+      const normalizedSeenInThisEntry = new Map<string, number>()
       const newItems: { displayText: string; normalizedText: string }[] = []
-      for (const raw of action.items) {
+      for (let i = 0; i < action.items.length; i++) {
+        const raw = action.items[i]!
         const n = normalizeFishbowlText(raw)
-        if (!n.isValid) return { ...state, lastError: n.error }
-        if (normalizedExisting.has(n.normalizedText)) {
-          return { ...state, lastError: 'That phrase has already been entered.' }
+        if (!n.isValid) return { ...state, lastError: `Item ${i + 1}: ${n.error}` }
+
+        const existingText = normalizedToExistingText.get(n.normalizedText)
+        if (existingText) {
+          return {
+            ...state,
+            lastError: `Item ${i + 1} is a duplicate of an existing entry: "${existingText}".`,
+          }
         }
-        if (newItems.some((x) => x.normalizedText === n.normalizedText)) {
-          return { ...state, lastError: 'That phrase has already been entered.' }
+
+        const prevIdx = normalizedSeenInThisEntry.get(n.normalizedText)
+        if (typeof prevIdx === 'number') {
+          return {
+            ...state,
+            lastError: `Item ${i + 1} duplicates Item ${prevIdx + 1}.`,
+          }
         }
+
+        normalizedSeenInThisEntry.set(n.normalizedText, i)
         newItems.push({ displayText: n.displayText, normalizedText: n.normalizedText })
       }
 
