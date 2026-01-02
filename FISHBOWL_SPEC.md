@@ -61,8 +61,8 @@ Notes:
 ### 4.3 Rounds and timers
 There are exactly three rounds:
 - **Round 1 (Describe)**: 30 seconds per turn (default).
-- **Round 2 (Charades)**: 60 seconds per turn (default).
-- **Round 3 (One-word clue)**: 60 seconds per turn (default).
+- **Round 2 (Charades)**: 45 seconds per turn (default).
+- **Round 3 (One-word clue)**: 45 seconds per turn (default).
 
 **Carryover rule (between rounds only)**:
 - If the final fishbowl item of the round is guessed **before time expires**, pause immediately and **record remaining time**.
