@@ -340,6 +340,37 @@
   letter-spacing: -0.02em;
 }
 
+.turnScore {
+  margin-top: 10px;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.12);
+}
+.turnScoreTeam {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.turnScoreName {
+  font-weight: 800;
+  color: var(--muted);
+  letter-spacing: -0.01em;
+}
+.turnScoreValue {
+  font-weight: 900;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+.turnScoreVs {
+  color: var(--muted);
+  font-weight: 900;
+}
+
 .wordCard {
   user-select: none;
   border: 1px solid var(--border);

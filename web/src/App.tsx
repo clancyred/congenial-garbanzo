@@ -912,6 +912,8 @@ function TurnActiveScreen({
 
   const round = state.currentRound as RoundNumber
   const remaining = state.timerSecondsRemaining ?? 0
+  const aTotal = totalScore(state.scoresByRound, 'A')
+  const bTotal = totalScore(state.scoresByRound, 'B')
 
   const clearPressedTimer = () => {
     if (pressedTimeoutRef.current != null) {
@@ -945,6 +947,18 @@ function TurnActiveScreen({
           </div>
           <div className="timer" aria-live="polite">
             {remaining}s
+          </div>
+        </div>
+
+        <div className="turnScore" aria-live="polite">
+          <div className="turnScoreTeam">
+            <span className="turnScoreName">{state.teams.A.name}</span>
+            <span className="turnScoreValue">{aTotal}</span>
+          </div>
+          <div className="turnScoreVs">–</div>
+          <div className="turnScoreTeam">
+            <span className="turnScoreName">{state.teams.B.name}</span>
+            <span className="turnScoreValue">{bTotal}</span>
           </div>
         </div>
 
