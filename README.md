@@ -13,7 +13,8 @@ Fishbowl is similar to Moniker: players submit words/phrases into a shared “fi
 See `FISHBOWL_SPEC.md`.
 
 ## Hosting (free)
-Recommended deployment: GitHub Pages with automated deploys (see `FISHBOWL_SPEC.md` §14).
+The application is hosted on GitHub Pages.
+**Auto-Deployment:** The project is configured to automatically deploy to the live site on **every push to any branch**. This ensures the live URL always runs the latest committed code for testing.
 
 ## Developer Notes
 **Versioning:**
