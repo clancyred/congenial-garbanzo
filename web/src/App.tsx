@@ -8,6 +8,8 @@ import { clearSavedGame, isInProgressGame, loadSavedGame, saveGame } from './gam
 import { useScreenWakeLock } from './game/wakeLock'
 import { roundName } from './game/util'
 
+const APP_VERSION = 2
+
 const QUICK_PLAYER_NAMES = [
   'Dad',
   'Mom',
@@ -212,7 +214,7 @@ function App() {
         <div className="card">
           <div className="h1">Resume game?</div>
           <div className="muted" style={{ marginTop: 8 }}>
-            An in-progress game was found on this iPad.
+            An in-progress game was found on this iPad. (v{APP_VERSION})
           </div>
           <div className="row" style={{ marginTop: 16 }}>
             <button
@@ -245,7 +247,9 @@ function App() {
       <div className="topbarTitle">
         <div className="topbarTitleMain">{title}</div>
         <div className="topbarTitleSub">
-          {state.currentRound ? `${state.teams.A.name} vs ${state.teams.B.name}` : 'Offline iPad PWA'}
+          {state.currentRound
+            ? `${state.teams.A.name} vs ${state.teams.B.name}`
+            : `Offline iPad PWA (v${APP_VERSION})`}
         </div>
       </div>
       <div className="topbarActions">
