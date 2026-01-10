@@ -80,6 +80,45 @@ function defaultTimerForRound(state: GameState, round: RoundNumber): number {
   return state.timerSettings.round3Seconds
 }
 
+function TimerStepper({
+  value,
+  onChange,
+  label,
+}: {
+  value: number
+  onChange: (val: number) => void
+  label: string
+}) {
+  return (
+    <label className="field">
+      <div className="label">{label}</div>
+      <div className="stepper">
+        <button
+          type="button"
+          className="stepperBtn"
+          onClick={() => onChange(value - 5)}
+          aria-label="Decrease time"
+        >
+          −
+        </button>
+        <input
+          inputMode="numeric"
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+        />
+        <button
+          type="button"
+          className="stepperBtn"
+          onClick={() => onChange(value + 5)}
+          aria-label="Increase time"
+        >
+          +
+        </button>
+      </div>
+    </label>
+  )
+}
+
 function App() {
   const [state, setState] = useState<GameState>(() => createNewGameState())
   const [resumeCandidate, setResumeCandidate] = useState<GameState | null>(null)
@@ -288,30 +327,21 @@ function App() {
                 </label>
               </div>
               <div className="grid3" style={{ marginTop: 10 }}>
-                <label className="field">
-                  <div className="label">R1</div>
-                  <input
-                    inputMode="numeric"
-                    value={state.timerSettings.round1Seconds}
-                    onChange={(e) => dispatch({ type: 'HOST_SET_TIMER', round: 1, seconds: Number(e.target.value) })}
-                  />
-                </label>
-                <label className="field">
-                  <div className="label">R2</div>
-                  <input
-                    inputMode="numeric"
-                    value={state.timerSettings.round2Seconds}
-                    onChange={(e) => dispatch({ type: 'HOST_SET_TIMER', round: 2, seconds: Number(e.target.value) })}
-                  />
-                </label>
-                <label className="field">
-                  <div className="label">R3</div>
-                  <input
-                    inputMode="numeric"
-                    value={state.timerSettings.round3Seconds}
-                    onChange={(e) => dispatch({ type: 'HOST_SET_TIMER', round: 3, seconds: Number(e.target.value) })}
-                  />
-                </label>
+                <TimerStepper
+                  label="R1"
+                  value={state.timerSettings.round1Seconds}
+                  onChange={(v) => dispatch({ type: 'HOST_SET_TIMER', round: 1, seconds: v })}
+                />
+                <TimerStepper
+                  label="R2"
+                  value={state.timerSettings.round2Seconds}
+                  onChange={(v) => dispatch({ type: 'HOST_SET_TIMER', round: 2, seconds: v })}
+                />
+                <TimerStepper
+                  label="R3"
+                  value={state.timerSettings.round3Seconds}
+                  onChange={(v) => dispatch({ type: 'HOST_SET_TIMER', round: 3, seconds: v })}
+                />
               </div>
             </div>
           )}
@@ -413,30 +443,21 @@ function App() {
           <div className="section" style={{ marginTop: 14 }}>
             <div className="h2">Timers (pre-game)</div>
             <div className="grid3" style={{ marginTop: 10 }}>
-              <label className="field">
-                <div className="label">Round 1</div>
-                <input
-                  inputMode="numeric"
-                  value={state.timerSettings.round1Seconds}
-                  onChange={(e) => dispatch({ type: 'HOST_SET_TIMER', round: 1, seconds: Number(e.target.value) })}
-                />
-              </label>
-              <label className="field">
-                <div className="label">Round 2</div>
-                <input
-                  inputMode="numeric"
-                  value={state.timerSettings.round2Seconds}
-                  onChange={(e) => dispatch({ type: 'HOST_SET_TIMER', round: 2, seconds: Number(e.target.value) })}
-                />
-              </label>
-              <label className="field">
-                <div className="label">Round 3</div>
-                <input
-                  inputMode="numeric"
-                  value={state.timerSettings.round3Seconds}
-                  onChange={(e) => dispatch({ type: 'HOST_SET_TIMER', round: 3, seconds: Number(e.target.value) })}
-                />
-              </label>
+              <TimerStepper
+                label="Round 1"
+                value={state.timerSettings.round1Seconds}
+                onChange={(v) => dispatch({ type: 'HOST_SET_TIMER', round: 1, seconds: v })}
+              />
+              <TimerStepper
+                label="Round 2"
+                value={state.timerSettings.round2Seconds}
+                onChange={(v) => dispatch({ type: 'HOST_SET_TIMER', round: 2, seconds: v })}
+              />
+              <TimerStepper
+                label="Round 3"
+                value={state.timerSettings.round3Seconds}
+                onChange={(v) => dispatch({ type: 'HOST_SET_TIMER', round: 3, seconds: v })}
+              />
             </div>
           </div>
 

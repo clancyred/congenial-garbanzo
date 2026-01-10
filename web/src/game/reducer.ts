@@ -53,7 +53,7 @@ export function createNewGameState(): GameState {
       B: { id: 'B', name: 'Red' },
     },
     playerCount: 8,
-    timerSettings: { round1Seconds: 30, round2Seconds: 45, round3Seconds: 45 },
+    timerSettings: { round1Seconds: 30, round2Seconds: 45, round3Seconds: 20 },
     entryIndex: 0,
     startingTeamRound1: null,
     players: [],
@@ -432,6 +432,15 @@ export function gameReducer(state: GameState, action: Action): GameState {
       if (remaining > 0) return { ...state, timerSecondsRemaining: remaining }
 
       // Time's up
+      let nextPools = state.pools
+      if (state.pools && state.pools.currentItemId) {
+        nextPools = {
+          ...state.pools,
+          primary: shuffled([...state.pools.primary, state.pools.currentItemId]),
+          currentItemId: null,
+        }
+      }
+
       let nextState: GameState = {
         ...state,
         screen: 'timeUp',
@@ -440,6 +449,7 @@ export function gameReducer(state: GameState, action: Action): GameState {
         turnDurationSeconds: null,
         undoStack: [],
         lastError: null,
+        pools: nextPools,
       }
       const round: RoundNumber | undefined = state.currentRound ?? undefined
       nextState = addEvent(nextState, {
