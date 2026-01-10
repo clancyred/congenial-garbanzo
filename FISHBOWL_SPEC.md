@@ -405,3 +405,9 @@ Once deployed:
 - Share → **Add to Home Screen**.
 - Launch from Home Screen for the PWA-like experience.
 
+## 15) Versioning
+The application displays a version number (e.g., v2) on the initial setup screen and resume screen. This helps users verify they are running the latest version.
+
+**Important for Developers:**
+When making updates to the application logic or UI, you **must manually increment** the `APP_VERSION` constant in `web/src/App.tsx`.
+
