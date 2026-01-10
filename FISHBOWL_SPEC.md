@@ -369,11 +369,12 @@ All destructive actions should require confirmation.
 - During active turns, the app attempts to prevent screen sleep (wake lock where available) and otherwise provides an in-app workaround prompt.
 
 ## 14) Hosting & deployment (free, automated)
-Recommended: **GitHub Pages** with automated deploys from `main` to a `gh-pages` branch via GitHub Actions.
+Recommended: **GitHub Pages** with automated deploys from **any branch** to a `gh-pages` branch via GitHub Actions.
 
 ### 14.1 Workflow
-This repo includes a ready-to-use workflow:
-- `.github/workflows/deploy-gh-pages.yml`
+The included workflow `.github/workflows/deploy-gh-pages.yml` is configured to **automatically deploy on every push to any branch**.
+- This ensures the live site always reflects the most recent changes for immediate testing.
+- No manual merging or PR approval is required to update the testing site.
 
 It assumes:
 - Node-based web app with `npm ci`
@@ -404,4 +405,10 @@ Once deployed:
 - Open the Pages URL in iPad Safari.
 - Share → **Add to Home Screen**.
 - Launch from Home Screen for the PWA-like experience.
+
+## 15) Versioning
+The application displays a version number (e.g., v2) on the initial setup screen and resume screen. This helps users verify they are running the latest version.
+
+**Important for Developers:**
+When making updates to the application logic or UI, you **must manually increment** the `APP_VERSION` constant in `web/src/App.tsx`.
 

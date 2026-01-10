@@ -8,6 +8,8 @@ import { clearSavedGame, isInProgressGame, loadSavedGame, saveGame } from './gam
 import { useScreenWakeLock } from './game/wakeLock'
 import { roundName } from './game/util'
 
+const APP_VERSION = 2
+
 const QUICK_PLAYER_NAMES = [
   'Dad',
   'Mom',
@@ -78,6 +80,45 @@ function defaultTimerForRound(state: GameState, round: RoundNumber): number {
   if (round === 1) return state.timerSettings.round1Seconds
   if (round === 2) return state.timerSettings.round2Seconds
   return state.timerSettings.round3Seconds
+}
+
+function TimerStepper({
+  value,
+  onChange,
+  label,
+}: {
+  value: number
+  onChange: (val: number) => void
+  label: string
+}) {
+  return (
+    <label className="field">
+      <div className="label">{label}</div>
+      <div className="stepper">
+        <button
+          type="button"
+          className="stepperBtn"
+          onClick={() => onChange(value - 5)}
+          aria-label="Decrease time"
+        >
+          −
+        </button>
+        <input
+          inputMode="numeric"
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+        />
+        <button
+          type="button"
+          className="stepperBtn"
+          onClick={() => onChange(value + 5)}
+          aria-label="Increase time"
+        >
+          +
+        </button>
+      </div>
+    </label>
+  )
 }
 
 function App() {
@@ -173,7 +214,7 @@ function App() {
         <div className="card">
           <div className="h1">Resume game?</div>
           <div className="muted" style={{ marginTop: 8 }}>
-            An in-progress game was found on this iPad.
+            An in-progress game was found on this iPad. (v{APP_VERSION})
           </div>
           <div className="row" style={{ marginTop: 16 }}>
             <button
@@ -206,7 +247,9 @@ function App() {
       <div className="topbarTitle">
         <div className="topbarTitleMain">{title}</div>
         <div className="topbarTitleSub">
-          {state.currentRound ? `${state.teams.A.name} vs ${state.teams.B.name}` : 'Offline iPad PWA'}
+          {state.currentRound
+            ? `${state.teams.A.name} vs ${state.teams.B.name}`
+            : `Offline iPad PWA (v${APP_VERSION})`}
         </div>
       </div>
       <div className="topbarActions">
@@ -288,30 +331,21 @@ function App() {
                 </label>
               </div>
               <div className="grid3" style={{ marginTop: 10 }}>
-                <label className="field">
-                  <div className="label">R1</div>
-                  <input
-                    inputMode="numeric"
-                    value={state.timerSettings.round1Seconds}
-                    onChange={(e) => dispatch({ type: 'HOST_SET_TIMER', round: 1, seconds: Number(e.target.value) })}
-                  />
-                </label>
-                <label className="field">
-                  <div className="label">R2</div>
-                  <input
-                    inputMode="numeric"
-                    value={state.timerSettings.round2Seconds}
-                    onChange={(e) => dispatch({ type: 'HOST_SET_TIMER', round: 2, seconds: Number(e.target.value) })}
-                  />
-                </label>
-                <label className="field">
-                  <div className="label">R3</div>
-                  <input
-                    inputMode="numeric"
-                    value={state.timerSettings.round3Seconds}
-                    onChange={(e) => dispatch({ type: 'HOST_SET_TIMER', round: 3, seconds: Number(e.target.value) })}
-                  />
-                </label>
+                <TimerStepper
+                  label="R1"
+                  value={state.timerSettings.round1Seconds}
+                  onChange={(v) => dispatch({ type: 'HOST_SET_TIMER', round: 1, seconds: v })}
+                />
+                <TimerStepper
+                  label="R2"
+                  value={state.timerSettings.round2Seconds}
+                  onChange={(v) => dispatch({ type: 'HOST_SET_TIMER', round: 2, seconds: v })}
+                />
+                <TimerStepper
+                  label="R3"
+                  value={state.timerSettings.round3Seconds}
+                  onChange={(v) => dispatch({ type: 'HOST_SET_TIMER', round: 3, seconds: v })}
+                />
               </div>
             </div>
           )}
@@ -413,30 +447,21 @@ function App() {
           <div className="section" style={{ marginTop: 14 }}>
             <div className="h2">Timers (pre-game)</div>
             <div className="grid3" style={{ marginTop: 10 }}>
-              <label className="field">
-                <div className="label">Round 1</div>
-                <input
-                  inputMode="numeric"
-                  value={state.timerSettings.round1Seconds}
-                  onChange={(e) => dispatch({ type: 'HOST_SET_TIMER', round: 1, seconds: Number(e.target.value) })}
-                />
-              </label>
-              <label className="field">
-                <div className="label">Round 2</div>
-                <input
-                  inputMode="numeric"
-                  value={state.timerSettings.round2Seconds}
-                  onChange={(e) => dispatch({ type: 'HOST_SET_TIMER', round: 2, seconds: Number(e.target.value) })}
-                />
-              </label>
-              <label className="field">
-                <div className="label">Round 3</div>
-                <input
-                  inputMode="numeric"
-                  value={state.timerSettings.round3Seconds}
-                  onChange={(e) => dispatch({ type: 'HOST_SET_TIMER', round: 3, seconds: Number(e.target.value) })}
-                />
-              </label>
+              <TimerStepper
+                label="Round 1"
+                value={state.timerSettings.round1Seconds}
+                onChange={(v) => dispatch({ type: 'HOST_SET_TIMER', round: 1, seconds: v })}
+              />
+              <TimerStepper
+                label="Round 2"
+                value={state.timerSettings.round2Seconds}
+                onChange={(v) => dispatch({ type: 'HOST_SET_TIMER', round: 2, seconds: v })}
+              />
+              <TimerStepper
+                label="Round 3"
+                value={state.timerSettings.round3Seconds}
+                onChange={(v) => dispatch({ type: 'HOST_SET_TIMER', round: 3, seconds: v })}
+              />
             </div>
           </div>
 
